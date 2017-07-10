@@ -1200,6 +1200,12 @@ namespace NLua
 
 			var luaParamValue = luaParamValueExtractor (startIndex);
 
+//from bizhak commit acc124ca9926ce21a945e1aa55d570c18161b1ca
+#if false
+// LuaTable unpacking is disabled.
+// In Lua, print({1, 2, 3}) should pass an array, not multiple arguments.
+// You can write print(unpack({1, 2, 3})) if necessary.
+
 			if (luaParamValue is LuaTable) {
 				LuaTable table = (LuaTable)luaParamValue;
 				IDictionaryEnumerator tableEnumerator = table.GetEnumerator ();
@@ -1223,7 +1229,12 @@ namespace NLua
 #endif
 					paramArrayIndex++;
 				}
-			} else {
+
+//from bizhak commit acc124ca9926ce21a945e1aa55d570c18161b1ca
+            }
+            else
+#endif
+            {
 
 				paramArray = Array.CreateInstance (paramArrayType, count);
 
@@ -1265,7 +1276,9 @@ namespace NLua
 				{					
 					paramList.Add (null);
 					outList.Add (paramList.LastIndexOf (null));
-				}  else if (IsTypeCorrect (luaState, currentLuaParam, currentNetParam, out extractValue)) {  // Type checking
+				}  else if (
+					currentLuaParam <= nLuaParams &&  //from bizhawk commit a1f8a3baccee86cd28d6dd15ca47d204bc658c
+						IsTypeCorrect (luaState, currentLuaParam, currentNetParam, out extractValue)) {  // Type checking
 					var value = extractValue (luaState, currentLuaParam);
 					paramList.Add (value);
 					int index = paramList.LastIndexOf (value);

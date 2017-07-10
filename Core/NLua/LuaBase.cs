@@ -44,7 +44,7 @@ namespace NLua
 
 		~LuaBase ()
 		{
-			Dispose (false);
+			Dispose(true);
 		}
 
 		public void Dispose ()
@@ -57,8 +57,8 @@ namespace NLua
 		{
 			if (!_Disposed) {
 				if (disposeManagedResources) {
-					if (_Reference != 0)
-						_Interpreter.DisposeInternal (_Reference);
+					if (_Reference != 0  && _Interpreter != null)
+						_Interpreter.ScheduleDispose(_Reference);
 				}
 
 				_Interpreter = null;

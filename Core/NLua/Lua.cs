@@ -1041,6 +1041,24 @@ end
 		}
 		#endregion
 
+		List<int> scheduledDisposes = new List<int>();
+
+		internal void ScheduleDispose(int reference)
+		{
+			lock (scheduledDisposes)
+				scheduledDisposes.Add(reference);
+		}
+
+		public void RunScheduledDisposes()
+		{
+			lock (scheduledDisposes)
+			{
+				foreach (var item in scheduledDisposes)
+					DisposeInternal(item);
+				scheduledDisposes.Clear();
+			}
+		}
+
 		internal void DisposeInternal (int reference)
 		{
 			if (! CheckNull.IsNull(luaState)) //Fix submitted by Qingrui Li
