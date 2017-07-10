@@ -26,6 +26,7 @@
 using System;
 using System.Reflection;
 using System.Collections.Generic;
+using System.Drawing;
 using NLua.Method;
 using NLua.Extensions;
 
@@ -73,6 +74,7 @@ namespace NLua
 			extractValues.Add(GetExtractDictionaryKey(typeof(LuaFunction)), new ExtractValue(GetAsFunction));
 			extractValues.Add(GetExtractDictionaryKey(typeof(LuaTable)), new ExtractValue(GetAsTable));
 			extractValues.Add(GetExtractDictionaryKey(typeof(LuaUserData)), new ExtractValue(GetAsUserdata));
+			extractValues.Add(GetExtractDictionaryKey(typeof(Color)), new ExtractValue(getAsColor)); //from bizhawk luainterface commit 58b51637155e7af2805d0e69c7edd5509892e5b2
 			extractNetObject = new ExtractValue (GetAsNetObject);		
 		}
 
@@ -186,6 +188,10 @@ namespace NLua
 						return extractNetObject;
 				} else
 					return null;
+			}
+			else if (paramType == typeof(Color)) //from bizhawk luainterface commit 58b51637155e7af2805d0e69c7edd5509892e5b2
+			{
+				return extractValues[extractKey];
 			} else {
 				object obj = translator.GetNetObject (luaState, stackPos);
 				if (obj != null && paramType.IsAssignableFrom (obj.GetType ()))
@@ -334,6 +340,33 @@ namespace NLua
 				return null;
 			string retVal = LuaLib.LuaToString (luaState, stackPos).ToString ();			
 			return retVal;
+		}
+
+		//from bizhawk luainterface:
+		//commit 58b51637155e7af2805d0e69c7edd5509892e5b2
+		//commit 3b2e16e87ad454ba65d9e5f3eec0c13426644a8f
+		private object getAsColor(LuaState luaState, int stackPos)
+		{
+			try
+			{
+				if (LuaLib.LuaIsNumber(luaState, stackPos))
+				{
+					Color retVal = Color.FromArgb((int)(long)LuaLib.LuaToNumber(luaState, stackPos));
+					return retVal;
+				}
+				else if (LuaLib.LuaIsString(luaState, stackPos))
+				{
+
+					Color retVal = Color.FromName(LuaLib.LuaToString(luaState, stackPos));
+					return retVal;
+				}
+
+				return null;
+			}
+			catch (Exception)
+			{
+				return null;
+			}
 		}
 
 		private object GetAsTable (LuaState luaState, int stackPos)

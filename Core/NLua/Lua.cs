@@ -307,6 +307,11 @@ end
 			}
 		}
 
+		private Lua(bool forThread)
+		{
+			//don't do anything
+		}
+
 		void Init ()
 		{
 			LuaLib.LuaPushString (luaState, "LUAINTERFACE LOADED");
@@ -1146,6 +1151,48 @@ end
 		internal void PushCSFunction (LuaNativeFunction function)
 		{
 			translator.PushFunction (luaState, function);
+		}
+
+		//zero 24-mar-2012 added
+		public LuaTable NewTable()
+		{
+			//create the table to a temporary variable because I don't know any other way
+			//then nil it immediately after getting a reference, to create visibly deterministic behaviour
+			NewTable("_TEMP_BIZHAWK_RULES_");
+			var temp = GetTable("_TEMP_BIZHAWK_RULES_");
+			DoString("_TEMP_BIZHAWK_RULES_ = nil;");
+			return temp;
+		}
+
+		//zero 09-jul-2017
+		public Lua NewThread()
+		{
+			//note: the synchronization among .net threads won't work
+			//but we d on't use that in bizhawk
+			var lua = new Lua(true);
+			lua.translator = translator;
+			lua.luaState = LuaCore.LuaNewThread(luaState);
+			return lua;
+		}
+
+		//zero 09-jul-2017
+		public int Resume(int narg)
+		{
+			int top = LuaLib.LuaGetTop(luaState);
+			int ret = LuaCore.LuaResume(luaState, narg);
+			if (ret == 1 /*LUA_YIELD*/)
+				return 1; //yielded
+			if (ret == 0) 
+				return 0; //normal termination
+			//error. throw exception with error message (TBD - debug api to get call stack)
+			ThrowExceptionFromError(top);
+			return ret;
+		}
+
+		//zero 09-jul-2017
+		public void Yield(int nresults)
+		{
+			LuaCore.LuaYield(luaState, nresults);
 		}
 
 		#region IDisposable Members
