@@ -70,6 +70,8 @@ namespace NLua
 	[CLSCompliant(true)]
 	public class Lua : IDisposable
 	{
+		public static readonly string WhichLua = "NLua";
+
 		#region lua debug functions
 		/// <summary>
 		/// Event that is raised when an exception occures during a hook call.
