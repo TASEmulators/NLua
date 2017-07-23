@@ -976,6 +976,13 @@ namespace NLua
 				PushFunction (luaState, (LuaNativeFunction)o);
 			else if (o is LuaFunction)
 				((LuaFunction)o).Push (luaState);
+			//zero 22-jul-2017
+			else if (o is Lua)
+			{
+				var lua = o as Lua;
+				LuaCore.LuaPushThread(lua.luaState);
+				LuaCore.LuaXMove(lua.luaState, luaState, 1);
+			}
 			else
 				PushObject (luaState, o, "luaNet_metatable");
 		}

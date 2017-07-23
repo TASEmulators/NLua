@@ -342,6 +342,11 @@ namespace NLua
 			LuaCore.LuaAtPanic (luaState, (LuaNativeFunction)panicf);
 		}
 
+		//zero 22-jul-2017
+		public static void LuaPushThread(LuaState luaState)
+		{
+			LuaCore.LuaPushThread(luaState);
+		}
 
 		public static void LuaPushNumber (LuaState luaState, double number)
 		{

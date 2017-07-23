@@ -93,7 +93,7 @@ namespace NLua
 		private readonly List<string> globals = new List<string> ();
 		private bool globalsSorted;
 		#endregion
-		private LuaState luaState;
+		public LuaState luaState; //zero 22-jul-2017
 		/// <summary>
 		/// True while a script is being executed
 		/// </summary>
