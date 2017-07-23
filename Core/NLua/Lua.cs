@@ -1180,7 +1180,7 @@ end
 			//then nil it immediately after getting a reference, to create visibly deterministic behaviour
 			NewTable("_TEMP_BIZHAWK_RULES_");
 			var temp = GetTable("_TEMP_BIZHAWK_RULES_");
-			DoString("_TEMP_BIZHAWK_RULES_ = nil;");
+			this["_TEMP_BIZHAWK_RULES_"] = null;
 			return temp;
 		}
 
