@@ -1486,7 +1486,7 @@ namespace NLua
 
             var luaParamValue = extractValue(luaState, startIndex);
             startIndex++;
-
+#if false
             if (luaParamValue is LuaTable)
             {
                 LuaTable table = (LuaTable)luaParamValue;
@@ -1517,6 +1517,7 @@ namespace NLua
                 }
             }
             else
+#endif
             {
                 paramArray = Array.CreateInstance(paramArrayType, count);
 
