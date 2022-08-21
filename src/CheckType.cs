@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Drawing;
 using KeraLua;
 using NLua.Method;
 using NLua.Extensions;
@@ -34,7 +33,6 @@ namespace NLua
             _extractValues.Add(typeof(string), GetAsString);
             _extractValues.Add(typeof(char[]), GetAsCharArray);
             _extractValues.Add(typeof(byte[]), GetAsByteArray);
-            _extractValues.Add(typeof(Color), GetAsColor);
             _extractValues.Add(typeof(LuaFunction), GetAsFunction);
             _extractValues.Add(typeof(LuaTable), GetAsTable);
             _extractValues.Add(typeof(LuaThread), GetAsThread);
@@ -134,11 +132,6 @@ namespace NLua
             else if (netParamIsString)
             {
                 if (luaState.IsString(stackPos) || luatype == LuaType.Nil)
-                    return _extractValues[paramType];
-            }
-            else if (paramType == typeof(Color))
-            {
-                if (luaState.IsInteger(stackPos) || luaState.IsString(stackPos) || luatype == LuaType.Nil)
                     return _extractValues[paramType];
             }
             else if (paramType == typeof(LuaTable))
@@ -395,17 +388,6 @@ namespace NLua
 
             object obj = _translator.GetObject(luaState, stackPos);
             return obj;
-        }
-
-        public object GetAsColor(LuaState luaState, int stackPos)
-        {
-            if (luaState.IsInteger(stackPos))
-                return Color.FromArgb((int)luaState.ToInteger(stackPos));
-
-            if (luaState.IsString(stackPos))
-                return Color.FromName(luaState.ToString(stackPos));
-
-            return null;
         }
 
         public object GetAsNetObject(LuaState luaState, int stackPos)
