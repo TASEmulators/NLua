@@ -1,7 +1,9 @@
 ﻿
 using System;
 using System.Collections;
+using KeraLua;
 
+using NLua.Exceptions;
 using NLua.Extensions;
 
 using LuaState = KeraLua.Lua;
@@ -36,6 +38,39 @@ namespace NLua
         {
             _luaState = interpreter.GetThreadState(reference);
             _translator = interpreter.Translator;
+        }
+
+        /*
+         * Resumes this thread
+         */
+        public LuaStatus Resume()
+        {
+            // We leave nothing on the stack if we error
+            int oldTop = _luaState.GetTop();
+            LuaStatus ret = _luaState.Resume(null, 0);
+
+            if (ret == LuaStatus.OK || ret == LuaStatus.Yield)
+            {
+                return ret;
+            }
+
+            object err = _translator.GetObject(_luaState, -1);
+            _luaState.SetTop(oldTop);
+
+            if (err is LuaScriptException luaEx)
+            {
+                throw luaEx;
+            }
+
+            throw new LuaScriptException($"Unknown Lua Error (got {ret})", string.Empty);
+        }
+
+        /*
+         * Yields this thread
+         */
+        public void Yield()
+        {
+            _luaState.Yield(0);
         }
 
         /*
