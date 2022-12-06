@@ -46,7 +46,9 @@ namespace NLua
         public LuaStatus Resume()
         {
             // We leave nothing on the stack if we error
-            int oldTop = _luaState.GetTop();
+            var oldMainTop = _luaState.MainThread.GetTop();
+            var oldCoTop = _luaState.GetTop();
+
             LuaStatus ret = _luaState.Resume(null, 0);
 
             if (ret == LuaStatus.OK || ret == LuaStatus.Yield)
@@ -54,15 +56,22 @@ namespace NLua
                 return ret;
             }
 
-            object err = _translator.GetObject(_luaState, -1);
-            _luaState.SetTop(oldTop);
+            object coErr = _translator.GetObject(_luaState, -1);
+            object mainErr = _translator.GetObject(_luaState.MainThread, -1);
+            _luaState.SetTop(oldCoTop);
+            _luaState.MainThread.SetTop(oldMainTop);
 
-            if (err is LuaScriptException luaEx)
+            if (coErr is LuaScriptException coLuaEx)
             {
-                throw luaEx;
+                throw coLuaEx;
             }
 
-            throw new LuaScriptException($"Unknown Lua Error (got {ret})", string.Empty);
+            if (mainErr is LuaScriptException mainLuaEx)
+            {
+                throw mainLuaEx;
+            }
+
+            throw new LuaScriptException($"Unknown Lua Error (status = {ret})", string.Empty);
         }
 
         /*

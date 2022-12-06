@@ -81,7 +81,9 @@ namespace NLua
                                      paramType == typeof(float) ||
                                      paramType == typeof(double) ||
                                      paramType == typeof(decimal) ||
-                                     paramType == typeof(byte);
+                                     paramType == typeof(byte) ||
+                                     paramType == typeof(sbyte) ||
+                                     paramType == typeof(char);
 
             // If it is a nullable
             if (underlyingType != null)
@@ -131,7 +133,7 @@ namespace NLua
             }
             else if (netParamIsString)
             {
-                if (luaState.IsString(stackPos) || luatype == LuaType.Nil)
+                if (luaState.IsStringOrNumber(stackPos) || luatype == LuaType.Nil)
                     return _extractValues[paramType];
             }
             else if (paramType == typeof(LuaTable))
@@ -328,7 +330,7 @@ namespace NLua
 
         private object GetAsCharArray(LuaState luaState, int stackPos)
         {
-            if (!luaState.IsString(stackPos))
+            if (!luaState.IsStringOrNumber(stackPos))
                 return null;
             string retVal = luaState.ToString(stackPos, false);
             return retVal.ToCharArray();
@@ -336,7 +338,7 @@ namespace NLua
 
         private object GetAsByteArray(LuaState luaState, int stackPos)
         {
-            if (!luaState.IsString(stackPos))
+            if (!luaState.IsStringOrNumber(stackPos))
                 return null;
 
             byte [] retVal = luaState.ToBuffer(stackPos, false);
@@ -345,7 +347,7 @@ namespace NLua
 
         private object GetAsString(LuaState luaState, int stackPos)
         {
-            if (!luaState.IsString(stackPos))
+            if (!luaState.IsStringOrNumber(stackPos))
                 return null;
             return luaState.ToString(stackPos, false);
         }

@@ -102,6 +102,13 @@ namespace NLua
 
             if (exception != null)
                 return state.Error();
+
+            if (state != state.MainThread)
+            {
+                if (translator.GetObject(state.MainThread, -1) is LuaScriptException)
+                    return state.Error();
+            }
+
             return result;
          }
 
