@@ -71,6 +71,11 @@ namespace NLua
                 throw mainLuaEx;
             }
 
+            if (coErr != null)
+            {
+                throw new LuaScriptException(coErr.ToString(), string.Empty);
+            }
+
             throw new LuaScriptException($"Unknown Lua Error (status = {ret})", string.Empty);
         }
 
