@@ -195,7 +195,7 @@ namespace NLua.Method
                 return false;
 
             // If there is no method overloads, is ok to use the cached method
-            if (_members.Length == 1)
+            if (_members == null || _members.Length == 1)
                 return true;
 
             return _translator.MatchParameters(luaState, _lastCalledMethod.cachedMethod, _lastCalledMethod, skipParams);
@@ -316,7 +316,7 @@ namespace NLua.Method
             // Method from name
             if (methodToCall == null)
                 return CallMethodFromName(luaState);
-            
+
             // Method from MethodBase instance
             if (!methodToCall.ContainsGenericParameters)
             {
@@ -326,7 +326,15 @@ namespace NLua.Method
                     luaState.Remove(1); // Pops the receiver
                 }
 
-                if (!_translator.MatchParameters(luaState, methodToCall,  _lastCalledMethod, 0))
+                // Cached?
+                if (IsMethodCached(luaState, luaState.GetTop(), 0))
+                {
+                    if (!luaState.CheckStack(_lastCalledMethod.outList.Length + 6))
+                        throw new LuaException("Lua stack overflow");
+
+                    FillMethodArguments(luaState, 0);
+                }
+                else if (!_translator.MatchParameters(luaState, methodToCall,  _lastCalledMethod, 0))
                 {
                     _translator.ThrowError(luaState, "Invalid arguments to method call");
                     return 1;
